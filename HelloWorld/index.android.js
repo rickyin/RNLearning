@@ -7,7 +7,7 @@ import {
     AppRegistry,
 } from 'react-native';
 
-import Dashbord from './js/Dashbord'
+import Dashbord from './js/Dashboard'
 
 AppRegistry.registerComponent('HelloWord', () => Dashbord);
 

@@ -11,10 +11,13 @@ import {
     TextInput,
     Button,
     Image,
+    ListView,
+    ActivityIndicator,
     ScrollView,
 } from 'react-native';
 
-import Toast, {DURATION} from 'react-native-easy-toast'
+
+const ds_ziliao = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
 
 
 export default class Detail extends React.Component {
@@ -22,13 +25,16 @@ export default class Detail extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            username: '',
-            password: '',
+            isRefresh: false,
+            authorId: 0,
+            author: null,
+            tb_ziliaos: ds_ziliao,
         };
     }
 
     static navigationOptions = ({navigation}) => ({
-        title: `chat with ${navigation.state.params.user}`,
+        // title: `chat with ${navigation.state.params.authorId}`,
+        title: 'Author Brief',
         headerStyle: {
             backgroundColor: 'orange',
         },
@@ -39,68 +45,68 @@ export default class Detail extends React.Component {
         headerTintColor: 'white',
         statusBar: {
             backgroundColor: 'transparent',
-        }
+        },
     });
 
-
-    async _login(username, password) {
-        fetch(`http://app.gushiwen.org/user/login.aspx?n=930330159&email=${username}&token=gswapi&pwd=${password}`)
-            .then((response) => response.text())
-            .then((responseJson) => {
-                alert(responseJson);
-                return responseJson;
-            })
-            .catch((error) => {
-                alert('error');
-            })
+    componentDidMount() {
+        let userID = this.props.navigation.state.params.authorId;
+        this.getData(userID);
     }
 
-    render() {
+    getData(userID) {
+        let url = 'http://app.gushiwen.org/api/author/author.aspx?token=gswapi&id=' + userID;
+        fetch(url)
+            .then((response) => {
+                return response.json();
+            })
+            .then((responseJson) => {
+                if (responseJson.tb_author) {
+                    this.setState({
+                            isRefresh: false,
+                            author: responseJson.tb_author,
+                            tb_ziliaos: ds_ziliao.cloneWithRows(responseJson.tb_ziliaos.ziliaos),
+                        }
+                    );
+                }
+            }).catch((error) => {
+            alert('error');
+        })
+    }
+
+    /**
+     * ziliao item
+     * */
+    _renderZiliaoRow(rowData) {
         return (
-            <ScrollView style={styles.container}>
-                <Toast
-                    ref="toast"/>
-                <View style={styles.img_container}>
-                    <Image style={styles.img_bg}
-                           resizeMode='cover'
-                           source={require('./img/bg.jpeg')}/>
-                </View>
-                <View style={[styles.item_container, {marginTop: 32}]}>
-                    <Text style={ styles.left_text}>username:</Text>
-                    <View style={{borderBottomWidth: 1, borderBottomColor: 'orange', flex: 1}}>
-                        <TextInput
-                            numberOfLines={1}
-                            underlineColorAndroid='transparent'
-                            style={styles.input_right}
-                            onChangeText={(text) => {
-                                this.setState({username: text});
-                            }}
-                        />
-                    </View>
-                </View>
+            <View style={styles.item_container}>
+                <Text style={styles.item_header}>
+                    {rowData.nameStr}
+                </Text>
+                <Text numberOfLines={4}>
+                    {rowData.cont}
+                </Text>
+            </View>
+        );
+    }
 
-                <View style={[styles.item_container, {marginTop: 1}]}>
-                    <Text style={ styles.left_text}>password:</Text>
-                    <View style={{borderBottomWidth: 1, borderBottomColor: 'orange', flex: 1}}>
-                        <TextInput
-                            numberOfLines={1}
-                            secureTextEntry={true}
-                            underlineColorAndroid='transparent'
-                            style={styles.input_right}
-                            onChangeText={(text) => {
-                                this.setState({password: text});
-                            }}
-                        />
-                    </View>
-                </View>
 
-                <View style={styles.btn_login}>
-                    <Button
-                        color='orange'
-                        title="login"
-                        onPress={this._login.bind(this, this.state.username + "-" + this.state.password)}
-                    />
+    render() {
+        if (this.state.author == null) {
+            return (
+                <View style={styles.load_container}>
+                    <ActivityIndicator color="orange"/>
                 </View>
+            );
+        }
+        return (
+            <ScrollView>
+                <Text style={styles.header_brief}>
+                    {this.state.author.cont}
+                </Text>
+                <ListView
+                    dataSource={this.state.tb_ziliaos}
+                    renderRow={this._renderZiliaoRow.bind(this)}
+                />
             </ScrollView>
         );
     }
@@ -120,32 +126,19 @@ const styles = StyleSheet.create({
         flex: 1,
     },
 
-
     item_container: {
-        flexDirection: 'row',
-        margin: 16
-    },
-
-    left_text: {
-        height: 40,
-        width: 110,
-        paddingTop: 8,
-        fontSize: 20,
-        color: 'orange',
-        fontWeight: 'bold',
-    },
-    input_right: {
-        height: 40,
-        fontSize: 18,
-        paddingLeft: 8,
-    },
-    btn_login: {
-        marginTop: 32,
         marginLeft: 16,
         marginRight: 16,
-        backgroundColor: 'white',
-        borderColor: 'orange',
-        borderWidth: 1,
+        marginTop: 8,
+        marginBottom: 8,
+    },
+    header_brief: {
+        margin: 16,
+    },
+    item_header: {
+        marginBottom: 8,
+        color: 'orange',
+        fontSize: 16,
     }
 
 })

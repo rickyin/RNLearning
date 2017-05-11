@@ -15,13 +15,15 @@ import {
 } from 'react-native';
 
 import Detail from './Detail'
+import SignUp from './SignUp'
+import Login from './Login'
 
 import {StackNavigator} from 'react-navigation';
 
 
 const ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
 
-class Dashbord extends React.Component {
+class Dashboard extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
@@ -49,7 +51,7 @@ class Dashbord extends React.Component {
                 }
 
             }).catch((error) => {
-            alert('haha');
+            alert('error');
         })
     }
 
@@ -69,8 +71,9 @@ class Dashbord extends React.Component {
 
     _renderRow(rowData) {
         const {navigate} = this.props.navigation;
+
         return (
-            <TouchableOpacity onPress={() => navigate('Detail', {user: 'lucy'})}>
+            <TouchableOpacity onPress={() => navigate('Detail', {authorId: rowData.id})}>
                 <View style={styles.container}>
                     <Image
                         style={{width: 60, height: 80}}
@@ -127,8 +130,10 @@ const styles = StyleSheet.create({
 
 
 const test = StackNavigator({
-        Dashbord: {screen: Dashbord},
+        Dashboard: {screen: Dashboard},
         Detail: {screen: Detail},
+        SignUp: {screen: SignUp},
+        Login: {screen: Login},
     }
 );
 
