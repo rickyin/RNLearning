@@ -14,9 +14,11 @@ import {
     ActivityIndicator,
 } from 'react-native';
 
+
 import Detail from './Detail'
 import SignUp from './SignUp'
 import Login from './Login'
+import FlatListDemo from './FlatListDemo'
 
 import {StackNavigator} from 'react-navigation';
 
@@ -90,7 +92,9 @@ class Dashboard extends React.Component {
         if (this.state.dataSource.getRowCount() === 0) {
             return (
                 <View style={styles.load_container}>
-                    <ActivityIndicator color="orange"/>
+                    <ActivityIndicator
+                        size="large"
+                        color="orange"/>
                 </View>
             );
         }
@@ -99,6 +103,7 @@ class Dashboard extends React.Component {
                 <ListView
                     dataSource={this.state.dataSource}
                     renderRow={this._renderRow.bind(this)}
+                    initialListSize={8}
                 />
             </View>
         );
@@ -134,6 +139,7 @@ const test = StackNavigator({
         Detail: {screen: Detail},
         SignUp: {screen: SignUp},
         Login: {screen: Login},
+        FlatListDemo: {screen: FlatListDemo},
     }
 );
 

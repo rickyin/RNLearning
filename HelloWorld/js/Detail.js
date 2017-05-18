@@ -18,6 +18,7 @@ import {
 
 
 const ds_ziliao = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
+const ds_gushiwen = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
 
 
 export default class Detail extends React.Component {
@@ -29,11 +30,11 @@ export default class Detail extends React.Component {
             authorId: 0,
             author: null,
             tb_ziliaos: ds_ziliao,
+            tb_gushiwens: ds_gushiwen,
         };
     }
 
-    static navigationOptions = ({navigation}) => ({
-        // title: `chat with ${navigation.state.params.authorId}`,
+    static navigationOptions = {
         title: 'Author Brief',
         headerStyle: {
             backgroundColor: 'orange',
@@ -46,14 +47,20 @@ export default class Detail extends React.Component {
         statusBar: {
             backgroundColor: 'transparent',
         },
-    });
+    }
+
 
     componentDidMount() {
         let userID = this.props.navigation.state.params.authorId;
         this.getData(userID);
     }
 
-    getData(userID) {
+    shareAction() {
+        const {navigate} = this.props.navigation;
+        navigate('FlatListDemo');
+    }
+
+    async getData(userID) {
         let url = 'http://app.gushiwen.org/api/author/author.aspx?token=gswapi&id=' + userID;
         fetch(url)
             .then((response) => {
@@ -65,6 +72,7 @@ export default class Detail extends React.Component {
                             isRefresh: false,
                             author: responseJson.tb_author,
                             tb_ziliaos: ds_ziliao.cloneWithRows(responseJson.tb_ziliaos.ziliaos),
+                            tb_gushiwens: ds_gushiwen.cloneWithRows(responseJson.tb_gushiwens.gushiwens),
                         }
                     );
                 }
@@ -79,7 +87,7 @@ export default class Detail extends React.Component {
     _renderZiliaoRow(rowData) {
         return (
             <View style={styles.item_container}>
-                <Text style={styles.item_header}>
+                <Text style={styles.item_header_2}>
                     {rowData.nameStr}
                 </Text>
                 <Text numberOfLines={4}>
@@ -90,6 +98,32 @@ export default class Detail extends React.Component {
     }
 
 
+    _renderGushiwenRow(rowData) {
+        return (
+            <View>
+                <View style={styles.item_container}>
+                    <Text style={styles.item_header_2}>
+                        {rowData.nameStr}
+                    </Text>
+                    <Text numberOfLines={4}>
+                        {rowData.cont}
+                    </Text>
+                </View>
+
+            </View>
+        );
+    }
+
+    _renderHeader(content) {
+        return (
+            <View>
+                <Text style={styles.tag_c}>
+                    {content}
+                </Text>
+            </View>
+        );
+    }
+
     render() {
         if (this.state.author == null) {
             return (
@@ -99,20 +133,32 @@ export default class Detail extends React.Component {
             );
         }
         return (
-            <ScrollView>
-                <Text style={styles.header_brief}>
+            <ScrollView
+                showsVerticalScrollIndicator={false}>
+                <Text
+                    onPress={this.shareAction.bind(this)}
+                    style={styles.header_brief}>
                     {this.state.author.cont}
                 </Text>
                 <ListView
                     dataSource={this.state.tb_ziliaos}
-                    renderRow={this._renderZiliaoRow.bind(this)}
-                />
+                    renderHeader={this._renderHeader.bind(this, '参考资料')}
+                    renderRow={this._renderZiliaoRow.bind(this)}/>
+                <ListView
+                    dataSource={this.state.tb_gushiwens}
+                    renderHeader={this._renderHeader.bind(this, '相关作品')}
+                    renderRow={this._renderGushiwenRow.bind(this)}/>
             </ScrollView>
         );
     }
 }
 
 const styles = StyleSheet.create({
+    load_container: {
+        flex: 1,
+        marginTop: 8,
+        alignSelf: 'center',
+    },
     container: {
         flex: 1,
         flexDirection: 'column',
@@ -124,6 +170,11 @@ const styles = StyleSheet.create({
 
     img_bg: {
         flex: 1,
+    },
+    btn_toolbar: {
+        padding: 8,
+        color: 'white',
+        fontSize: 16,
     },
 
     item_container: {
@@ -139,6 +190,19 @@ const styles = StyleSheet.create({
         marginBottom: 8,
         color: 'orange',
         fontSize: 16,
+    },
+    item_header_2: {
+        marginBottom: 8,
+        color: 'blue',
+        fontSize: 16,
+    },
+    tag_c: {
+        width: 66,
+        padding: 4,
+        marginLeft: 16,
+        backgroundColor: 'orange',
+        color: 'white',
+        alignSelf: 'flex-start',
     }
 
 })

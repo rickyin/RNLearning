@@ -28,8 +28,8 @@ export default class Detail extends React.Component {
         };
     }
 
-    static navigationOptions = ({navigation}) => ({
-        title: `chat with ${navigation.state.params.user}`,
+    static navigationOptions = {
+        title: "login",
         headerStyle: {
             backgroundColor: 'orange',
         },
@@ -41,7 +41,7 @@ export default class Detail extends React.Component {
         statusBar: {
             backgroundColor: 'transparent',
         }
-    });
+    };
 
 
     async _login(username, password) {
