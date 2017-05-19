@@ -1,33 +1,24 @@
-/**
- * Created by ryin017 on 5/12/17.
- */
-import React, {Component} from 'react';
+import React, {Component} from "react";
 import {
-    AppRegistry,
-    StyleSheet,
-    Text,
     View,
-    Image,
-    TouchableHighlight,
-    TouchableOpacity,
-    ActivityIndicator,
+    Text,
+    StyleSheet,
     FlatList,
-} from 'react-native';
+    ActivityIndicator
+} from "react-native";
 
-
-export default class MusicPage extends Component {
+export  default class FlatListDemo extends Component {
     constructor(props) {
         super(props);
-        this.state = {
-            page: 1,
-            isLoading: true,
-            //网络请求状态
-            error: false,
-            errorInfo: "",
-            data: [],
-            index:0,
-        }
 
+        this.state = {
+            loading: false,
+            data: [],
+            page: 1,
+            seed: 1,
+            error: null,
+            refreshing: false
+        };
     }
 
     componentDidMount() {
@@ -35,119 +26,65 @@ export default class MusicPage extends Component {
     }
 
     _fetchData() {
-        const p = this.state.page;
-        const REQUEST_URL = 'http://app.gushiwen.org/api/author/Default.aspx?token=gswapi&p=' + p;
+        const {page} = this.state;
+        const url = `http://app.gushiwen.org/api/author/Default.aspx?token=gswapi&p=${page}`;
+        this.setState({loading: true});
 
-        fetch(REQUEST_URL)
-            .then((response) => response.json())
-            .then((data) => {
-                let datalist = data.authors;
-                let dataBlog = [];
-
-                datalist.map((item) => {
-                    dataBlog.push({
-                        key: this.state.index,
-                        value: item
-                    })
-                    this.state.index++;
-                })
-
+        fetch(url)
+            .then(res => res.json())
+            .then(res => {
                 this.setState({
-                    data: this.state.data.concat(dataBlog),
-                    isLoading: false,
-                })
-
-                datalist = null;
-                dataBlog = null;
-
+                    data: page === 1 ? res.authors : [...this.state.data, ...res.authors],
+                    // data: res.authors ,
+                    error: res.error || null,
+                    loading: false,
+                    refreshing: false
+                });
             })
-            .catch((err) => {
-                this.setState({
-                    error: true,
-                    errorInfo: err
-                })
-            })
-            .done()
-    }
-
-
-    _loadMore() {
-        this.setState({
-            page: this.state.page + 1,
-        });
-        this._fetchData()
-    }
+            .catch(error => {
+                this.setState({error, loading: false});
+            });
+    };
 
     _refresh() {
         this.setState({
             page: 1,
             data: [],
-        });
-        this._fetchData()
-    }
+            refreshing: true
+        }, this._fetchData());
+        console.log("--refresh->" + this.state.page)
+    };
+
+    _loadMore() {
+        this.setState({
+            page: this.state.page + 1,
+            refreshing: false,
+        }, this._fetchData());
+
+        console.log("--more->" + this.state.page)
+    };
 
 
     _renderItemView({item}) {
         return (
             <View style={styles.cellStyle}>
-                <Text>{item.value.nameStr}</Text>
-                <Text>{item.value.cont}</Text>
+                <Text>{item.nameStr}</Text>
+                <Text>{item.cont}</Text>
             </View>
-        )
-    }
-
-    renderLoadingView() {
-        return (
-            <View style={styles.container}>
-                <ActivityIndicator
-                    animating={true}
-                    style={{height: 80}}
-                    color='orange'
-                    size="large"
-                />
-            </View>
-        )
-    }
-
-    //加载失败view
-    renderErrorView(error) {
-        return (
-            <View style={styles.container}>
-                <Text>
-                    Fail: {error}
-                </Text>
-            </View>
-        );
-    }
-
-    _renderFlatlist() {
-
-        //第一次加载等待的view
-        if (this.state.isLoading && !this.state.error) {
-            return this.renderLoadingView();
-        } else if (this.state.error) {
-            //请求失败view
-            return this.renderErrorView(this.state.errorInfo);
-        }
-
-        return (
-            <FlatList
-                data={this.state.data}
-                renderItem={ this._renderItemView}
-                onRefresh={this._refresh.bind(this)}
-                refreshing={false}
-                onEndReached={this._loadMore.bind(this)}
-            />
         )
     }
 
     render() {
         return (
-            <View style={styles.container}>
-                {this._renderFlatlist()}
-            </View>
-        )
-
+            <FlatList
+                data={this.state.data}
+                renderItem={this._renderItemView.bind(this)}
+                keyExtractor={ (item, index) => item.id }
+                onRefresh={this._refresh.bind(this)}
+                refreshing={this.state.refreshing}
+                onEndReached={this._loadMore.bind(this)}
+            />
+        );
     }
 }
 
@@ -174,3 +111,4 @@ const styles = StyleSheet.create({
         elevation: 2   //   高度，设置Z轴，可以产生立体效果
     }
 });
+
