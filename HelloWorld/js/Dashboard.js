@@ -1,17 +1,16 @@
 /**
  * Created by ryin017 on 5/5/17.
  */
-import React, {Component} from 'react';
+import React from 'react';
 import {
-    AppRegistry,
     StyleSheet,
     Text,
-    Button,
     Image,
     ListView,
     View,
     TouchableOpacity,
     ActivityIndicator,
+    StatusBar,
 } from 'react-native';
 
 
@@ -66,8 +65,15 @@ class Dashboard extends React.Component {
         headerTitleStyle: {
             color: 'white',
             alignSelf: 'center',
-        }
+        },
         // header: null
+        // statusBar:{
+        //     animated:false,
+        //     hidden:false,
+        //     backgroundColor:'#F57C00',
+        //     barStyle:'default',
+        //     networkActivityIndicatorVisible:true,
+        // }
     }
 
 
@@ -100,6 +106,13 @@ class Dashboard extends React.Component {
         }
         return (
             <View>
+                <StatusBar
+                    animated={false}
+                    hidden={false}
+                    backgroundColor={'#F57C00'}
+                    barStyle={'default'}
+                    networkActivityIndicatorVisible={true}
+                />
                 <ListView
                     dataSource={this.state.dataSource}
                     renderRow={this._renderRow.bind(this)}

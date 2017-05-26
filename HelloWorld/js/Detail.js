@@ -5,12 +5,7 @@ import React from 'react';
 import {
     Text,
     View,
-    Navigator,
-    TouchableOpacity,
     StyleSheet,
-    TextInput,
-    Button,
-    Image,
     ListView,
     ActivityIndicator,
     ScrollView,
