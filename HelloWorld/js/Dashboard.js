@@ -18,6 +18,7 @@ import Detail from './Detail'
 import SignUp from './SignUp'
 import Login from './Login'
 import FlatListDemo from './FlatListDemo'
+import ViewPagerDemo from './ViewPagerDemo'
 
 import {StackNavigator} from 'react-navigation';
 
@@ -67,13 +68,6 @@ class Dashboard extends React.Component {
             alignSelf: 'center',
         },
         // header: null
-        // statusBar:{
-        //     animated:false,
-        //     hidden:false,
-        //     backgroundColor:'#F57C00',
-        //     barStyle:'default',
-        //     networkActivityIndicatorVisible:true,
-        // }
     }
 
 
@@ -153,6 +147,7 @@ const test = StackNavigator({
         SignUp: {screen: SignUp},
         Login: {screen: Login},
         FlatListDemo: {screen: FlatListDemo},
+        ViewPagerDemo: {screen: ViewPagerDemo},
     }
 );
 

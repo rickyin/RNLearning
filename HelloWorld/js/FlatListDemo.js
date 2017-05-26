@@ -4,8 +4,9 @@ import {
     Text,
     StyleSheet,
     FlatList,
-    ActivityIndicator
+    TouchableHighlight,
 } from "react-native";
+
 
 export  default class FlatListDemo extends Component {
     constructor(props) {
@@ -51,7 +52,7 @@ export  default class FlatListDemo extends Component {
             page: 1,
             data: [],
             refreshing: true
-        }, this._fetchData());
+        }, this._fetchData.bind(this));
         console.log("--refresh->" + this.state.page)
     };
 
@@ -59,18 +60,27 @@ export  default class FlatListDemo extends Component {
         this.setState({
             page: this.state.page + 1,
             refreshing: false,
-        }, this._fetchData());
+        }, this._fetchData.bind(this));
 
         console.log("--more->" + this.state.page)
     };
 
 
+    _goViewPagerDemo() {
+        const {navigate} = this.props.navigation;
+        navigate('ViewPagerDemo');
+    }
+
     _renderItemView({item}) {
         return (
-            <View style={styles.cellStyle}>
-                <Text>{item.nameStr}</Text>
-                <Text>{item.cont}</Text>
-            </View>
+            <TouchableHighlight
+                onPress={this._goViewPagerDemo.bind(this)}
+                underlayColor="orange">
+                <View style={styles.cellStyle}>
+                    <Text>{item.nameStr}</Text>
+                    <Text>{item.cont}</Text>
+                </View>
+            </TouchableHighlight>
         )
     }
 
